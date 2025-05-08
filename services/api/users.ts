@@ -1,38 +1,20 @@
+import { UserDetailsType, UserListType } from "@/types/users";
+import { get } from "../httpClient";
+
 const baseGithubApiUrl = 'https://api.github.com'
 
-export const getUsersByUsername = async (username: String) => {
-    try {
-      const response = await fetch(
-        `${baseGithubApiUrl}/users/search?term=${username}`,
-      );
-      const json = await response.json();
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
-  };
+type GetUsersByUsernameType = {
+  items: UserListType[];
+}
 
+export const getUsersByUsername = (username: String): Promise<GetUsersByUsernameType>  => {
+  return get(`${baseGithubApiUrl}/search/users?q=${username}`);
+};
 
-  export const getUserByUsername = async (username: String) => {
-    try {
-      const response = await fetch(
-        `${baseGithubApiUrl}/users/${username}`,
-      );
-      const json = await response.json();
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
-  };
+export const getUserByUsername = (username: String): Promise<UserDetailsType> => {
+  return get(`${baseGithubApiUrl}/users/${username}`)
+};
 
-  export const getUsers = async () => {
-    try {
-      const response = await fetch(
-        `${baseGithubApiUrl}/users`,
-      );
-      const json = await response.json();
-      return json;
-    } catch (error) {
-      console.error(error);
-    }
-  };
+export const getUsers = (): Promise<UserListType[]> => {
+  return get(`${baseGithubApiUrl}/users`);
+};

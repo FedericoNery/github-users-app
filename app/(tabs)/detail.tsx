@@ -1,49 +1,18 @@
 import { Link, Stack, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
-
+import { ActivityIndicator, Image, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useEffect, useState } from "react";
-import { getUserByUsername } from "@/services/api/users";
-import { Ionicons } from "@expo/vector-icons";
 import { AntDesign, Entypo, Feather, MaterialIcons } from "expo-vector-icons";
-
-type User = {
-  id: string;
-  login: string;
-  avatar_url: string;
-  followers: number;
-  following: number;
-  name: string;
-  twitter_username: string;
-  location: string;
-  email: string;
-};
+import { useFetchUserDetails } from "@/hooks/users/details/useFetchUserDetails";
+import { useFavouriteUsers } from "@/hooks/users/details/useFavouriteUsers";
+import FavouriteButton from "@/components/buttons/FavouriteButton";
 
 export default function DetailScreen() {
   const params = useLocalSearchParams();
   const { name: usernameParam } = params as { name: string };
 
-  const [isLoading, setLoading] = useState(true);
-  const [isError, setError] = useState(false);
-  const [data, setData] = useState<User | null>(null);
-
-  const fetchUserByUsername = async () => {
-    try {
-      const response = await getUserByUsername(usernameParam);
-      setData(response);
-    } catch (error) {
-      console.error(error);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserByUsername();
-  }, []);
-
+  const { isLoading, isError, data } = useFetchUserDetails(usernameParam); 
+  const { isFavouriteUser, toggleFavouriteUser } = useFavouriteUsers(); 
   const {
     login,
     id,
@@ -55,6 +24,8 @@ export default function DetailScreen() {
     location,
     email,
   } = data || {};
+
+  const isFavourite = data ? isFavouriteUser(login) : false;
 
   return (
     <>
@@ -99,6 +70,12 @@ export default function DetailScreen() {
                 <ThemedText type="title">{email}</ThemedText>
               </ThemedView>
             )}
+
+            {
+              <ThemedView style={styles.favourite}>
+                <FavouriteButton isFavourite={isFavourite} setIsFavourite={() => toggleFavouriteUser(login)} />
+              </ThemedView>
+            }
 
             <Link href="/" style={styles.link}>
               <ThemedText type="link">Back home</ThemedText>
@@ -150,4 +127,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  favourite:{
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  }
 });
