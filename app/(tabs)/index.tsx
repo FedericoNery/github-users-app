@@ -3,7 +3,8 @@ import {
   FlatList,
   Image,
   Pressable,
-  StyleSheet
+  StyleSheet,
+  useColorScheme
 } from "react-native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -17,6 +18,7 @@ type ItemProps = { username: string; avatarUrl: string };
 
 const Item = ({ username, avatarUrl }: ItemProps) => {
   const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
 
   return <Pressable
     onPress={() => {
@@ -29,7 +31,7 @@ const Item = ({ username, avatarUrl }: ItemProps) => {
       styles.wrapperCustom,
     ]}
   >
-    <ThemedView style={styles.item}>
+    <ThemedView style={{...styles.item, backgroundColor: colorScheme}}>
       <Image
         style={styles.avatar}
         source={
@@ -46,13 +48,14 @@ const Item = ({ username, avatarUrl }: ItemProps) => {
 
 export default function HomeScreen() {
   const { isLoading, isError, data } = useFetchUsersList()
+  const colorScheme = useColorScheme() ?? 'light';
 
   return (
     <ParallaxScrollView>
       {isLoading && <ActivityIndicator />}
       {!isLoading && !isError && data.length !== 0 && (
         <FlatList
-        style={{ display: "flex", flexDirection: "column" }}
+          style={{ display: "flex", flexDirection: "column", backgroundColor: colorScheme }}
           data={data}
           renderItem={({ item }) => (
             <Item username={item.login} avatarUrl={item.avatar_url} />
